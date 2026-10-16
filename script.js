@@ -4,8 +4,32 @@ document.querySelectorAll('[data-year]').forEach((node) => {
 
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', () => {
-    const target = document.querySelector(link.getAttribute('href'));
-    if (target) target.setAttribute('tabindex', '-1');
+    const target = document.getElementById(link.getAttribute('href').slice(1));
+    if (target) {
+      target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+    }
+    link.closest('details')?.removeAttribute('open');
+  });
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  document.querySelectorAll('.mobile-menu[open]').forEach((menu) => {
+    menu.removeAttribute('open');
+    menu.querySelector('summary').focus();
+  });
+});
+
+// Keep the reader in the equivalent section when switching language.
+document.querySelectorAll('.language-switch a').forEach((link) => {
+  link.addEventListener('click', () => {
+    const hash = window.location.hash;
+    if (hash === '#content' || hash === '#innhold') {
+      link.hash = link.lang === 'nb' ? '#innhold' : '#content';
+    } else if (hash) {
+      link.hash = hash;
+    }
   });
 });
 
@@ -21,5 +45,6 @@ document.querySelectorAll('.lite-youtube').forEach((player) => {
     iframe.referrerPolicy = 'strict-origin-when-cross-origin';
     iframe.allowFullscreen = true;
     player.replaceChildren(iframe);
+    iframe.focus();
   }, { once: true });
 });
